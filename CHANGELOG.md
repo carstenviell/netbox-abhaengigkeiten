@@ -27,7 +27,7 @@ Werden **nicht** im Repository geführt (sicherheitsrelevant), sondern lokal in 
 
 ---
 
-## [Unveröffentlicht]
+## [1.0.2] – 2026-11-16
 ### Behoben
 - **Abhängigkeitsbaum:** Fehlen das Plugin oder die Custom Object Types `abhaengigkeit`/`redundanzgruppe`, bricht das Script mit einer verständlichen Meldung ab statt mit `KeyError`/`ImportError` (gleiches Verhalten wie die Impact-Analyse).
 - **Tests:** Irreführende Zwischenausgabe „alle 9 Szenarien OK“ heißt jetzt „Szenarien 1–9 OK“.
