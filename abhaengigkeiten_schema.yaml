@@ -1,0 +1,204 @@
+# NetBox Custom Objects – Abhängigkeitsmodell
+# Format: Portable Schema v1 (netbox-custom-objects >= 1.0.0)
+# Voraussetzung: Choice Sets "abhaengigkeit_typ" und "kritikalitaet" existieren
+#                (legt setup_abhaengigkeiten.py an).
+# Regel: Feld-IDs NIE ändern oder wiederverwenden. Entfernte Felder -> removed_fields.
+
+schema_version: "1"
+
+types:
+
+  # ---------------------------------------------------------------
+  - name: geschaeftsprozess
+    slug: geschaeftsprozess
+    verbose_name: Geschäftsprozess
+    verbose_name_plural: Geschäftsprozesse
+    version: "1.0.0"
+    group_name: Abhängigkeiten
+    description: Geschäftsprozess mit BIA-Kennzahlen (RTO/RPO/MTPD)
+    fields:
+      - id: 1
+        name: name
+        type: text
+        label: Name
+        primary: true
+        required: true
+      - id: 2
+        name: verantwortlicher
+        type: object
+        label: Prozessverantwortlicher
+        related_object_type: tenancy/contact
+        related_name: prozesse_verantwortet
+      - id: 3
+        name: kritikalitaet
+        type: select
+        label: Kritikalität
+        choice_set: kritikalitaet
+      - id: 4
+        name: rto_h
+        type: integer
+        label: RTO (Stunden)
+        validation_minimum: 0
+      - id: 5
+        name: rpo_h
+        type: integer
+        label: RPO (Stunden)
+        validation_minimum: 0
+      - id: 6
+        name: mtpd_h
+        type: integer
+        label: MTPD (Stunden)
+        validation_minimum: 0
+      - id: 7
+        name: nis2_relevant
+        type: boolean
+        label: NIS2-relevant
+      - id: 8
+        name: bia_referenz
+        type: text
+        label: BIA-Referenz (BCM)
+        description: Verweis auf das führende BIA-Dokument
+    constraints:
+      - name: geschaeftsprozess_name_unique
+        type: unique
+        fields: [1]
+        case_insensitive: true
+
+  # ---------------------------------------------------------------
+  - name: applikation
+    slug: applikation
+    verbose_name: Applikation
+    verbose_name_plural: Applikationen
+    version: "1.0.0"
+    group_name: Abhängigkeiten
+    description: Fachanwendung oder IT-Dienst
+    fields:
+      - id: 1
+        name: name
+        type: text
+        label: Name
+        primary: true
+        required: true
+      - id: 2
+        name: hersteller
+        type: text
+        label: Hersteller
+      - id: 3
+        name: fachverantwortlicher
+        type: object
+        label: Fachverantwortlicher
+        related_object_type: tenancy/contact
+        related_name: applikationen_verantwortet
+      - id: 4
+        name: kritikalitaet
+        type: select
+        label: Kritikalität
+        choice_set: kritikalitaet
+    constraints:
+      - name: applikation_name_unique
+        type: unique
+        fields: [1]
+        case_insensitive: true
+
+  # ---------------------------------------------------------------
+  - name: redundanzgruppe
+    slug: redundanzgruppe
+    verbose_name: Redundanzgruppe
+    verbose_name_plural: Redundanzgruppen
+    version: "1.0.0"
+    group_name: Abhängigkeiten
+    description: Mindestens min_aktiv der Mitglieder müssen verfügbar sein
+    fields:
+      - id: 1
+        name: name
+        type: text
+        label: Name
+        primary: true
+        required: true
+      - id: 2
+        name: mitglieder
+        type: multiobject
+        label: Mitglieder
+        is_polymorphic: true
+        related_object_types:
+          - dcim/device
+          - virtualization/virtualmachine
+          - virtualization/cluster
+          - circuits/circuit
+        related_name: redundanzgruppen
+      - id: 3
+        name: min_aktiv
+        type: integer
+        label: Mindestens aktiv
+        required: true
+        default: 1
+        validation_minimum: 1
+    constraints:
+      - name: redundanzgruppe_name_unique
+        type: unique
+        fields: [1]
+        case_insensitive: true
+
+  # ---------------------------------------------------------------
+  - name: abhaengigkeit
+    slug: abhaengigkeit
+    verbose_name: Abhängigkeit
+    verbose_name_plural: Abhängigkeiten
+    version: "1.1.0"
+    group_name: Abhängigkeiten
+    description: "Kante: quelle hängt von ziel ab"
+    fields:
+      - id: 1
+        name: quelle
+        type: object
+        label: Quelle (hängt ab)
+        required: true
+        is_polymorphic: true
+        related_object_types:
+          - custom-objects/geschaeftsprozess
+          - custom-objects/applikation
+          - custom-objects/redundanzgruppe
+          - virtualization/virtualmachine
+          - dcim/device
+          - ipam/service
+        related_name: abhaengigkeiten_als_quelle
+        on_delete_behavior: protect
+      - id: 2
+        name: ziel
+        type: object
+        label: Ziel (wird benötigt)
+        required: true
+        is_polymorphic: true
+        related_object_types:
+          - custom-objects/applikation
+          - custom-objects/redundanzgruppe
+          - custom-objects/geschaeftsprozess
+          - virtualization/virtualmachine
+          - virtualization/cluster
+          - dcim/device
+          - dcim/powerfeed
+          - dcim/powerpanel
+          - ipam/service
+          - circuits/circuit
+        related_name: abhaengigkeiten_als_ziel
+        on_delete_behavior: protect
+      - id: 3
+        name: typ
+        type: select
+        label: Typ
+        required: true
+        choice_set: abhaengigkeit_typ
+      - id: 4
+        name: kritikalitaet
+        type: select
+        label: Kritikalität
+        required: true
+        choice_set: kritikalitaet
+      - id: 5
+        name: bemerkung
+        type: longtext
+        label: Bemerkung
+    constraints:
+      - name: abhaengigkeit_kante_unique
+        type: unique
+        fields: [1, 2, 3]

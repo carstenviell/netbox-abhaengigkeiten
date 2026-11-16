@@ -1,0 +1,7 @@
+.venv*/
+__pycache__/
+*.pem
+.env
+INTERN.md
+CLAUDE.md
+.DS_Store
