@@ -488,7 +488,13 @@ if _IN_NETBOX:
 
         def run(self, data, commit):
             from django.apps import apps
-            from netbox_custom_objects.models import CustomObjectType
+            try:
+                from netbox_custom_objects.models import CustomObjectType
+                Abh, Grp = (CustomObjectType.objects.get(name=n).get_model_with_serializer()
+                            for n in ("abhaengigkeit", "redundanzgruppe"))
+            except Exception as exc:
+                self.log_failure(f"Custom Object Types nicht ladbar: {exc}")
+                return
 
             # --- Startobjekt auflösen ---
             roh = (data.get("objekt") or "").strip()
@@ -521,15 +527,12 @@ if _IN_NETBOX:
                 if a is not None and b is not None:
                     hoch[a].append((b, label))
 
-            cot = {c.name: c.get_model_with_serializer()
-                   for c in CustomObjectType.objects.filter(
-                       name__in=["abhaengigkeit", "redundanzgruppe"])}
-            for e in cot["abhaengigkeit"].objects.all():
+            for e in Abh.objects.all():
                 if e.quelle is None or e.ziel is None:
                     continue
                 t = TYP_LABEL.get(e.typ, e.typ or "?")
                 kante(reg(e.quelle), reg(e.ziel), f"{t} [{e.kritikalitaet or '?'}]")
-            for g in cot["redundanzgruppe"].objects.all():
+            for g in Grp.objects.all():
                 gk = reg(g)
                 try:
                     for m in g.mitglieder.all():

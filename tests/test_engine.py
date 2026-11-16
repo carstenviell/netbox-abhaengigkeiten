@@ -58,7 +58,7 @@ assert any(set(c)=={"p1","p2"} for c in finde_zyklen(e))
 # 9 Kante "keine" ohne Wirkung
 z,g,m = run(["host-a"], edges=[("x","vm-proxy-a","keine")])
 assert "x" not in z
-print("alle 9 Szenarien OK")
+print("Szenarien 1–9 OK")
 # 10 Zwei-Host-Cluster: ohne QDevice Quorumverlust, mit QDevice nicht
 two = {"cl": ["host-a","host-b"]}
 z,g,m = run(["host-a"], cluster_hosts=two)
