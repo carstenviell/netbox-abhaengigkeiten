@@ -27,6 +27,10 @@ Werden **nicht** im Repository geführt (sicherheitsrelevant), sondern lokal in 
 
 ---
 
+## [1.0.3] – 2026-11-16
+### Behoben
+- **Impact-Analyse:** Betroffene Prozesse und Applikationen mit Stufe AUSFALL werden als Warnung statt als Fehler protokolliert. Bisher setzte NetBox den Job-Status dadurch auf „failed“, obwohl die Analyse korrekt durchlief. `log_failure` bleibt echten Fehlern vorbehalten (kein Ausgangsobjekt, Custom Object Types nicht ladbar, Objekt nicht gefunden). Die Stufe steht weiterhin im Text und in der CSV.
+
 ## [1.0.2] – 2026-11-16
 ### Behoben
 - **Abhängigkeitsbaum:** Fehlen das Plugin oder die Custom Object Types `abhaengigkeit`/`redundanzgruppe`, bricht das Script mit einer verständlichen Meldung ab statt mit `KeyError`/`ImportError` (gleiches Verhalten wie die Impact-Analyse).

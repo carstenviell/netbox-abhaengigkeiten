@@ -377,11 +377,12 @@ if _IN_NETBOX:
                 zusatz = f" | RTO {rto} h" if rto is not None else ""
                 nis2 = " | NIS2" if getattr(o, "nis2_relevant", False) else ""
                 text = f"PROZESS {STUFE_TEXT[zustand[k]]}: {names[k]}{zusatz}{nis2} – {grund[k]}"
-                (self.log_failure if zustand[k] == AUSFALL else self.log_warning)(text, obj=o)
+                # Befunde bewusst als Warnung: log_failure setzt den Job-Status auf "failed"
+                self.log_warning(text, obj=o)
 
             for k in apps:
                 text = f"Applikation {STUFE_TEXT[zustand[k]]}: {names[k]} – {grund[k]}"
-                (self.log_failure if zustand[k] == AUSFALL else self.log_warning)(text, obj=objs[k])
+                self.log_warning(text, obj=objs[k])
 
             for k in rest:
                 self.log_info(f"{STUFE_TEXT[zustand[k]]}: {names[k]} – {grund[k]}", obj=objs[k])
