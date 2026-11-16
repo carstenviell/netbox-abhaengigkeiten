@@ -27,6 +27,11 @@ Werden **nicht** im Repository geführt (sicherheitsrelevant), sondern lokal in 
 
 ---
 
+## [1.0.4] – 2026-11-16
+### Behoben
+- **Impact-Analyse / Abhängigkeitsbaum:** Einseitig terminierte Leitungen (z. B. Internetanschluss ohne dokumentierte Provider-Seite) werden als Gegenstelle erkannt. NetBox liefert bei solchen unvollständigen Kabelpfaden keine `connected_endpoints`. Bisher galt eine Firewall deshalb schon beim Ausfall ihres einzigen LAN-Switches als isoliert, und eine ausgefallene Leitung wirkte sich nicht auf das angeschlossene Gerät aus. Jetzt zählt die Leitungs-Terminierung am Pfadende (`CablePath.path_objects`, auch über Patchpanels hinweg).
+- Tests: Szenario 15 (Gegenstellen).
+
 ## [1.0.3] – 2026-11-16
 ### Behoben
 - **Impact-Analyse:** Betroffene Prozesse und Applikationen mit Stufe AUSFALL werden als Warnung statt als Fehler protokolliert. Bisher setzte NetBox den Job-Status dadurch auf „failed“, obwohl die Analyse korrekt durchlief. `log_failure` bleibt echten Fehlern vorbehalten (kein Ausgangsobjekt, Custom Object Types nicht ladbar, Objekt nicht gefunden). Die Stufe steht weiterhin im Text und in der CSV.

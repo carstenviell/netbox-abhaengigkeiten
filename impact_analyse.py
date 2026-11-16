@@ -222,6 +222,20 @@ def _key(obj):
     return (obj._meta.label_lower, obj.pk) if obj is not None else None
 
 
+def _endpunkte(itf):
+    """
+    Gegenstellen eines verkabelten Interfaces. Ist eine Leitung nur einseitig
+    terminiert (typisch beim Internetanschluss ohne dokumentierte Provider-Seite),
+    hält NetBox den Kabelpfad für unvollständig und connected_endpoints ist leer.
+    Dann zählt die Leitungs-Terminierung am Pfadende (auch über Patchpanels hinweg).
+    """
+    eps = itf.connected_endpoints or []
+    pfad = getattr(itf, "_path", None)
+    if not eps and pfad is not None and pfad.path_objects:
+        eps = [o for o in pfad.path_objects[-1] if getattr(o, "circuit", None) is not None]
+    return eps
+
+
 if _IN_NETBOX:
 
     class ImpactAnalyse(Script):
@@ -300,7 +314,7 @@ if _IN_NETBOX:
             # Kabel
             device_links = defaultdict(list)
             for itf in Interface.objects.filter(cable__isnull=False).select_related("device"):
-                for ep in itf.connected_endpoints or []:
+                for ep in _endpunkte(itf):
                     if getattr(ep, "device", None) is not None:
                         device_links[reg(itf.device)].append(reg(ep.device))
                     elif getattr(ep, "circuit", None) is not None:
@@ -590,7 +604,7 @@ if _IN_NETBOX:
                 self.log_info("===== DIREKT VERKABELT MIT =====")
                 text.append("DIREKT VERKABELT MIT")
                 for itf in Interface.objects.filter(device=start_obj, cable__isnull=False):
-                    for ep in itf.connected_endpoints or []:
+                    for ep in _endpunkte(itf):
                         peer = getattr(ep, "device", None) or getattr(ep, "circuit", None)
                         if peer is None:
                             continue

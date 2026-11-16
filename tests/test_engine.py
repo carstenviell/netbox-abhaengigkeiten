@@ -103,3 +103,13 @@ assert z["grp-core"]==AUSFALL and z["grp-dist"]==AUSFALL and z["host"]==AUSFALL,
 z,_,_ = berechne_impact(["c1"], **d)
 assert z["grp-dist"]==DEGRADIERT and z["host"]==DEGRADIERT, z
 print("Szenario 14 (Gruppe als Quelle) OK")
+# 15 Gegenstellen: einseitig terminierte Leitung (unvollständiger Pfad) zählt als Gegenstelle
+from types import SimpleNamespace as NS
+from impact_analyse import _endpunkte
+ct = NS(circuit="inet"); pp = NS(device="patchpanel")
+assert _endpunkte(NS(connected_endpoints=[NS(device="sw1")], _path=None))[0].device=="sw1"
+assert _endpunkte(NS(connected_endpoints=[], _path=NS(path_objects=[["itf"],["kabel"],[ct]])))==[ct]
+assert _endpunkte(NS(connected_endpoints=[], _path=NS(path_objects=[["itf"],["kabel"],[pp]])))==[]
+assert _endpunkte(NS(connected_endpoints=None, _path=None))==[]
+assert _endpunkte(NS(connected_endpoints=[], _path=NS(path_objects=[])))==[]
+print("Szenario 15 (Gegenstellen) OK")
