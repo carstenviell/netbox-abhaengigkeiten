@@ -95,6 +95,15 @@ Der API-Token braucht dafür Schreibrechte auf Choice Sets und Custom Object Typ
   /extras/scripts/<SCRIPT-ID>/?objekt=dcim/device:{{ object.pk }}
   /extras/scripts/<SCRIPT-ID>/?objekt=custom-objects/applikation:{{ object.pk }}
   ```
+- **Custom Links „Impact-Analyse“** je Objekttyp. Der Parameter ist der Feldname im Script (nicht `objekt=`), das Objekt ist danach im Formular vorausgewählt:
+  ```
+  /extras/scripts/<SCRIPT-ID>/?devices={{ object.pk }}       # Gerät
+  /extras/scripts/<SCRIPT-ID>/?vms={{ object.pk }}           # VM
+  /extras/scripts/<SCRIPT-ID>/?clusters={{ object.pk }}      # Cluster
+  /extras/scripts/<SCRIPT-ID>/?powerpanels={{ object.pk }}   # Unterverteilung
+  /extras/scripts/<SCRIPT-ID>/?powerfeeds={{ object.pk }}    # Stromkreis
+  /extras/scripts/<SCRIPT-ID>/?circuits={{ object.pk }}      # Leitung
+  ```
 
 ---
 

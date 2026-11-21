@@ -7,7 +7,6 @@ Schema-Versionen je Custom Object Type nach PEP 440, Git-Tag `schema-<version>`.
 
 ### In Arbeit
 - [ ] Anzeigeausdruck für `abhaengigkeit` in der Oberfläche setzen und prüfen: `{{ quelle }} → {{ ziel }}`. Ungetestet, ob das Plugin die verknüpften Objekte so auflöst. Der Ausdruck ist nicht Teil des Schemaformats und wird deshalb hier dokumentiert.
-- [ ] Custom Links „Abhängigkeiten“ je Objekttyp anlegen: `/extras/scripts/<ID>/?objekt=<app>/<modell>:{{ object.pk }}`. Ungetestet, ob NetBox das Script-Formular aus GET-Parametern vorbefüllt.
 
 ### Datenbefunde
 Werden **nicht** im Repository geführt (sicherheitsrelevant), sondern lokal in `INTERN.md` (per `.gitignore` ausgeschlossen).
@@ -26,6 +25,12 @@ Werden **nicht** im Repository geführt (sicherheitsrelevant), sondern lokal in 
 8. Optional: ein eigenes Plugin mit einem Bereich „Abhängigkeiten“ auf den Detailseiten, nur bei täglichem Bedarf. Es bedeutet zusätzlichen Pflegeaufwand bei jedem NetBox-Upgrade.
 
 ---
+
+## [1.0.5] – 2026-11-21
+### Neu
+- **README:** Custom Links „Impact-Analyse“ für Gerät, VM, Cluster, Unterverteilung, Stromkreis und Leitung (`?devices=`, `?vms=`, `?clusters=`, `?powerpanels=`, `?powerfeeds=`, `?circuits=` mit `{{ object.pk }}`). Das Objekt ist im Formular vorausgewählt.
+### Geändert
+- Vorbefüllung des Script-Formulars aus GET-Parametern in NetBox 4.7 verifiziert. Damit ist auch der offene Punkt zu den Custom Links „Abhängigkeiten“ erledigt.
 
 ## [1.0.4] – 2026-11-16
 ### Behoben
