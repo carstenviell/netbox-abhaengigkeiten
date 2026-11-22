@@ -439,3 +439,6 @@ msgstr "Cluster %(cl)s hat nur %(n)s Host(s) in NetBox und kein QDevice – ein 
 #, python-format
 msgid "VM %(vm)s has neither cluster nor host."
 msgstr "VM %(vm)s ohne Cluster und Host."
+
+msgid "(hidden object)"
+msgstr "(verborgenes Objekt)"

@@ -229,6 +229,19 @@ class ModelTests(TestCase):
         self.assertNotContains(r, 'secret-host')  # hidden target of ERP
         self.assertContains(r, 'object not visible')
 
+    def test_reasons_mask_hidden_objects(self):
+        # ERP is visible, but the redundancy group that caused its outage is not: its name must not leak
+        user = User.objects.create(username='reason_user')
+        for model in (Dependency, Application, BusinessProcess):
+            grant(user, model, ['view'])
+        grant(user, Device, ['view'], {'name__startswith': 'sw'})
+        self.client.force_login(user)
+        url = f'/plugins/dependencies/impact/?scenario=outage&device={self.sw1.pk}&device={self.sw2.pk}'
+        for r in (self.client.get(url), self.client.get(url + '&export=csv')):
+            self.assertContains(r, 'ERP')
+            self.assertNotContains(r, 'Core')
+            self.assertContains(r, '(hidden object)')
+
     def test_panel_hides_invisible_peer(self):
         user = User.objects.create(username='panel_user')
         grant(user, Dependency, ['view'])

@@ -196,9 +196,11 @@ class ImpactView(PermissionRequiredMixin, View):
         seeds = [reg(o) for o in seeds_objs]
         graph, broken, findings = load_impact_graph(reg, data.get('no_ha_tag'))
         qdevice = data.get('qdevice_votes') or 0
-        state, reason, hints = compute_impact(seeds, scenario=data['scenario'], qdevice_votes=qdevice, **graph)
-
         show = visible(request.user, reg.objs)
+        # reasons and hints name the causing objects - mask the ones the user may not see
+        hidden_name = _('(hidden object)')
+        graph['names'] = {k: (name if k in show else hidden_name) for k, name in reg.names.items()}
+        state, reason, hints = compute_impact(seeds, scenario=data['scenario'], qdevice_votes=qdevice, **graph)
         proc, app = BusinessProcess._meta.label_lower, Application._meta.label_lower
 
         def rows(pred):

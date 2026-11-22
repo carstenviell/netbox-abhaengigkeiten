@@ -5,6 +5,10 @@
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionen nach [SemVer](https://semver.org/lang/de/).
 Bis 1.x: Schema-Versionen je Custom Object Type nach PEP 440, Git-Tag `schema-<version>`.
 
+## [Unveröffentlicht]
+### Sicherheit
+- Impact-Analyse: Begründungen und Migrationshinweise (Seite und CSV-Export) nannten die auslösenden Objekte, auch wenn der Benutzer sie nicht sehen darf (z. B. eine Redundanzgruppe hinter einer sichtbaren Applikation). Namen verborgener Objekte erscheinen jetzt als „(verborgenes Objekt)“. Gefunden im zweiten Security-Review; Regressionstest `test_reasons_mask_hidden_objects`.
+
 ## Offen
 
 ### Roadmap
