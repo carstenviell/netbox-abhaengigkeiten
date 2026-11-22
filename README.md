@@ -105,6 +105,10 @@ Der API-Token braucht dafür Schreibrechte auf Choice Sets und Custom Object Typ
   /extras/scripts/<SCRIPT-ID>/?circuits={{ object.pk }}      # Leitung
   ```
 
+### 5. Optional: Patch-Planung
+
+Das Plugin [netbox-patch-management](https://github.com/carstenviell/netbox-patch-management) verlinkt aus der Patch-Planung auf die Impact-Analyse (Szenario Wartung, ausgewählte Systeme vorbefüllt). Es nutzt dafür den Script-Namen `ImpactAnalyse` und die Felder `szenario`, `devices` und `vms`. Diese Namen gelten deshalb als Schnittstelle und werden nicht umbenannt.
+
 ---
 
 ## Konventionen

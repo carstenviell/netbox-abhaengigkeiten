@@ -26,6 +26,10 @@ Werden **nicht** im Repository geführt (sicherheitsrelevant), sondern lokal in 
 
 ---
 
+## [1.0.6] – 2026-11-22
+### Dokumentation
+- **README:** Anbindung an das Plugin `netbox-patch-management`. Der Script-Name `ImpactAnalyse` und die Felder `szenario`, `devices`, `vms` sind jetzt eine Schnittstelle und dürfen nicht umbenannt werden.
+
 ## [1.0.5] – 2026-11-21
 ### Neu
 - **README:** Custom Links „Impact-Analyse“ für Gerät, VM, Cluster, Unterverteilung, Stromkreis und Leitung (`?devices=`, `?vms=`, `?clusters=`, `?powerpanels=`, `?powerfeeds=`, `?circuits=` mit `{{ object.pk }}`). Das Objekt ist im Formular vorausgewählt.
