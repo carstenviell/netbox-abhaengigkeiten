@@ -60,23 +60,23 @@ Leseberechtigung werden aber nie angezeigt – nur ihre Anzahl.
 ## Installation
 
 Das Plugin liegt nicht auf PyPI. Installiert wird aus dem GitHub-Release-Archiv – das funktioniert ohne `git`, auch im
-netbox-docker-Image. `v2.0.0` ggf. durch das gewünschte [Release](https://github.com/carstenviell/netbox-dependencies/releases)
+netbox-docker-Image. `v2.0.1` ggf. durch das gewünschte [Release](https://github.com/carstenviell/netbox-dependencies/releases)
 ersetzen.
 
 **NetBox aus dem Quellcode (systemd):**
 
 ```bash
-sudo /opt/netbox/venv/bin/pip install https://github.com/carstenviell/netbox-dependencies/archive/refs/tags/v2.0.0.tar.gz
+sudo /opt/netbox/venv/bin/pip install https://github.com/carstenviell/netbox-dependencies/archive/refs/tags/v2.0.1.tar.gz
 
 # bleibt bei NetBox-Upgrades erhalten (upgrade.sh installiert local_requirements.txt neu)
-echo "https://github.com/carstenviell/netbox-dependencies/archive/refs/tags/v2.0.0.tar.gz" | \
+echo "https://github.com/carstenviell/netbox-dependencies/archive/refs/tags/v2.0.1.tar.gz" | \
   sudo tee -a /opt/netbox/local_requirements.txt
 ```
 
 **netbox-docker:** in `plugin_requirements.txt`
 
 ```text
-https://github.com/carstenviell/netbox-dependencies/archive/refs/tags/v2.0.0.tar.gz
+https://github.com/carstenviell/netbox-dependencies/archive/refs/tags/v2.0.1.tar.gz
 ```
 
 und in `Dockerfile-Plugins` (aus dem `netbox`, `netbox-worker` und `netbox-housekeeping` per `docker-compose.override.yml` gebaut werden):

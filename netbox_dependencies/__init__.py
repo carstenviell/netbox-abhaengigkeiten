@@ -6,7 +6,7 @@ class DependenciesConfig(PluginConfig):
     verbose_name = 'Dependencies'
     description = ('Document dependencies (business process -> application -> VM -> cluster/host -> network '
                    '-> power) and analyse the impact of outages and maintenance.')
-    version = '2.0.0'
+    version = '2.0.1'
     author = 'Carsten Viell'
     base_url = 'dependencies'
     min_version = '4.7.0'

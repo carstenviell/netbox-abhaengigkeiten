@@ -5,7 +5,7 @@
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow [SemVer](https://semver.org/).
 Up to 1.x: schema versions per custom object type according to PEP 440, Git tag `schema-<version>`.
 
-## [Unreleased]
+## [2.0.1] – 2026-11-22
 ### Security
 - Impact analysis: reasons and migration hints (page and CSV export) named the objects that caused a failure, even if the user may not view them (e.g. a redundancy group behind a visible application). Names of hidden objects now appear as "(hidden object)". Found in a second security review; regression test `test_reasons_mask_hidden_objects`.
 
