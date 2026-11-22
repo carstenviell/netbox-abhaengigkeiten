@@ -1,0 +1,39 @@
+{% extends 'generic/_base.html' %}
+{% load i18n form_helpers helpers %}
+
+{% block title %}{% trans "Dependency tree" %}: {{ object }}{% endblock %}
+
+{% block content %}
+  <form method="get" class="card mb-3">
+    <div class="card-body row g-3 align-items-end">
+      <div class="col-md-3">{% render_field form.depth %}</div>
+      {% if is_device %}<div class="col-md-5">{% render_field form.cabling %}</div>{% endif %}
+      <div class="col-md-4 text-end">
+        <a href="{{ object.get_absolute_url }}" class="btn btn-outline-secondary">{{ object }}</a>
+        <button type="submit" class="btn btn-primary">{% trans "Show" %}</button>
+      </div>
+    </div>
+  </form>
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card mb-3">
+        <h2 class="card-header">{% trans "Requires" %} <small class="text-muted">{% trans "(what does the object depend on?)" %}</small></h2>
+        {% include 'netbox_dependencies/inc/tree_rows.html' with rows=requires arrow='→' %}
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card mb-3">
+        <h2 class="card-header">{% trans "Required by" %} <small class="text-muted">{% trans "(what depends on the object?)" %}</small></h2>
+        {% include 'netbox_dependencies/inc/tree_rows.html' with rows=required_by arrow='←' %}
+      </div>
+    </div>
+  </div>
+  {% if cabling %}
+    <div class="card mb-3">
+      <h2 class="card-header">{% trans "Directly cabled to" %}</h2>
+      <table class="table table-hover mb-0">
+        {% for c in cabling %}<tr><td>{{ c.interface|linkify }}</td><td>↔</td><td>{{ c.peer|linkify }}</td><td class="text-muted small">{{ c.endpoint }}</td></tr>{% endfor %}
+      </table>
+    </div>
+  {% endif %}
+{% endblock %}

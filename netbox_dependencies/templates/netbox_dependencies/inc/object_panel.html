@@ -1,0 +1,20 @@
+{% load i18n helpers %}
+<div class="card">
+  <h2 class="card-header">{% trans "Dependencies" %}</h2>
+  <table class="table table-hover mb-0">
+    <tr><th colspan="4" class="text-muted small">{% trans "Requires" %}</th></tr>
+    {% include 'netbox_dependencies/inc/dep_rows.html' with deps=requires side='target' %}
+    {% if not requires %}<tr><td colspan="4" class="text-muted">{% trans "None" %}</td></tr>{% endif %}
+    <tr><th colspan="4" class="text-muted small">{% trans "Required by" %}</th></tr>
+    {% include 'netbox_dependencies/inc/dep_rows.html' with deps=required_by side='source' %}
+    {% if not required_by %}<tr><td colspan="4" class="text-muted">{% trans "None" %}</td></tr>{% endif %}
+  </table>
+  {% if hidden %}<div class="card-body py-2 text-muted small">{% blocktrans count n=hidden %}{{ n }} further dependency is not shown (no permission to view the object).{% plural %}{{ n }} further dependencies are not shown (no permission to view the objects).{% endblocktrans %}</div>{% endif %}
+  <div class="card-footer d-flex flex-wrap gap-1 justify-content-end">
+    <a href="{{ tree_url }}" class="btn btn-sm btn-outline-primary"><i class="mdi mdi-file-tree"></i> {% trans "Dependency tree" %}</a>
+    {% if impact_url %}<a href="{{ impact_url }}" class="btn btn-sm btn-outline-danger"><i class="mdi mdi-flash-alert"></i> {% trans "Impact analysis" %}</a>{% endif %}
+    {% if perms.netbox_dependencies.add_dependency %}
+      <a href="{% url 'plugins:netbox_dependencies:dependency_add' %}?source_content_type={{ add_ct }}&source_object_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary"><i class="mdi mdi-plus-thick"></i> {% trans "Add dependency" %}</a>
+    {% endif %}
+  </div>
+</div>

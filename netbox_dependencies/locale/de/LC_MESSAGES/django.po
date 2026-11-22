@@ -1,0 +1,441 @@
+# German translation for netbox-dependencies.
+msgid ""
+msgstr ""
+"Project-Id-Version: netbox-dependencies\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-22 16:59+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Hard (outage)"
+msgstr "Hart (Ausfall)"
+
+msgid "Degraded"
+msgstr "Degradiert"
+
+msgid "None"
+msgstr "Keine"
+
+msgid "Runs on"
+msgstr "Läuft auf"
+
+msgid "Requires"
+msgstr "Benötigt"
+
+msgid "Authenticates via"
+msgstr "Authentifiziert über"
+
+msgid "Data from"
+msgstr "Daten von"
+
+msgid "Power/cooling"
+msgstr "Strom/Klima"
+
+msgid "Unplanned outage"
+msgstr "Ungeplanter Ausfall"
+
+msgid "Planned maintenance (HA VMs are migrated)"
+msgstr "Geplante Wartung (HA-VMs werden migriert)"
+
+msgid "outage"
+msgstr "Ausfall"
+
+msgid "degraded"
+msgstr "degradiert"
+
+msgid "starting object"
+msgstr "Ausgangsobjekt"
+
+#, python-format
+msgid "power panel %(name)s failed"
+msgstr "Unterverteilung %(name)s ausgefallen"
+
+msgid "no power supply left (all power ports)"
+msgstr "keine Stromversorgung mehr (alle Netzteile)"
+
+msgid "isolated: all cabled peers failed"
+msgstr "isoliert: alle verkabelten Gegenstellen ausgefallen"
+
+#, python-format
+msgid "quorum lost (%(available)s of %(votes)s votes, %(needed)s needed)"
+msgstr "Quorum verloren (%(available)s von %(votes)s Stimmen, nötig %(needed)s)"
+
+#, python-format
+msgid "cluster %(name)s failed"
+msgstr "Cluster %(name)s ausgefallen"
+
+#, python-format
+msgid "bound to host %(name)s (no HA / pinned)"
+msgstr "an Host %(name)s gebunden (kein HA/Hostfixierung)"
+
+#, python-format
+msgid "only %(available)s of %(total)s available, at least %(min)s needed"
+msgstr "nur %(available)s von %(total)s verfügbar, mindestens %(min)s nötig"
+
+#, python-format
+msgid "redundancy reduced (%(available)s of %(total)s available)"
+msgstr "Redundanz reduziert (%(available)s von %(total)s verfügbar)"
+
+#, python-format
+msgid "requires %(name)s (%(level)s)"
+msgstr "benötigt %(name)s (%(level)s)"
+
+#, python-format
+msgid "Cluster %(cluster)s: outage of %(hosts)s – HA VMs that ran there are restarted (short interruption). Up to %(count)s HA VMs may be affected; which ones is not documented in NetBox."
+msgstr "Cluster %(cluster)s: Ausfall von %(hosts)s – HA-VMs, die dort liefen, werden neu gestartet (kurze Unterbrechung). Betroffen sein können bis zu %(count)s HA-VMs; welche genau, ist in NetBox nicht dokumentiert."
+
+#, python-format
+msgid "Cluster %(cluster)s: before maintenance of %(hosts)s, move HA VMs by live migration (%(count)s HA VMs in the cluster). Check the capacity of the remaining %(remaining)s host(s)."
+msgstr "Cluster %(cluster)s: Vor Wartung von %(hosts)s HA-VMs per Live-Migration verschieben (%(count)s HA-VMs im Cluster). Kapazität der verbleibenden %(remaining)s Host(s) prüfen."
+
+msgid "Group"
+msgstr "Gruppe"
+
+msgid "Process owner"
+msgstr "Prozessverantwortlicher"
+
+msgid "Business process"
+msgstr "Geschäftsprozess"
+
+msgid "Continuity"
+msgstr "Kontinuität (BCM)"
+
+msgid "Application owner"
+msgstr "Fachverantwortlicher"
+
+msgid "Application"
+msgstr "Applikation"
+
+msgid "Redundancy group"
+msgstr "Redundanzgruppe"
+
+msgid "Member"
+msgstr "Mitglied"
+
+msgid "Source (depends on the target)"
+msgstr "Quelle (hängt vom Ziel ab)"
+
+msgid "Target (is required)"
+msgstr "Ziel (wird benötigt)"
+
+msgid "Dependency"
+msgstr "Abhängigkeit"
+
+msgid "Criticality"
+msgstr "Kritikalität"
+
+msgid "NIS2 relevant"
+msgstr "NIS2-relevant"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nein"
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Scenario"
+msgstr "Szenario"
+
+msgid "Devices"
+msgstr "Geräte"
+
+msgid "Virtual machines"
+msgstr "Virtuelle Maschinen"
+
+msgid "Clusters"
+msgstr "Cluster"
+
+msgid "Power panels"
+msgstr "Unterverteilungen"
+
+msgid "Power feeds"
+msgstr "Stromkreise"
+
+msgid "Circuits"
+msgstr "Leitungen"
+
+msgid "QDevice votes per cluster"
+msgstr "QDevice-Stimmen je Cluster"
+
+msgid "0 = no QDevice (default with 3+ hosts)"
+msgstr "0 = kein QDevice (Standard bei 3+ Hosts)"
+
+msgid "Tag for VMs without HA"
+msgstr "Tag für VMs ohne HA"
+
+msgid "Optional, plausibility check only"
+msgstr "Optional, nur Plausibilitätsprüfung"
+
+msgid "Maximum depth"
+msgstr "Maximale Tiefe"
+
+msgid "Show direct cable connections"
+msgstr "Direkte Kabelverbindungen zeigen"
+
+#, python-format
+msgid "VM %(vm)s is tagged \"%(tag)s\" but has no host – binding unknown."
+msgstr "VM %(vm)s hat das Tag \"%(tag)s\", aber keinen Host – Bindung unbekannt."
+
+#, python-format
+msgid "member (min. %(n)s active)"
+msgstr "Mitglied (min. %(n)s aktiv)"
+
+msgid "runs in cluster"
+msgstr "läuft im Cluster"
+
+msgid "bound to host"
+msgstr "gebunden an Host"
+
+msgid "host"
+msgstr "Host"
+
+msgid "power panel"
+msgstr "Unterverteilung"
+
+msgid "power"
+msgstr "Strom"
+
+msgid "name"
+msgstr "Name"
+
+msgid "description"
+msgstr "Beschreibung"
+
+msgid "comments"
+msgstr "Kommentare"
+
+msgid "process owner"
+msgstr "Prozessverantwortlicher"
+
+msgid "criticality"
+msgstr "Kritikalität"
+
+msgid "RTO (hours)"
+msgstr "RTO (Stunden)"
+
+msgid "Recovery time objective"
+msgstr "Wiederanlaufzeit (Recovery Time Objective)"
+
+msgid "RPO (hours)"
+msgstr "RPO (Stunden)"
+
+msgid "Recovery point objective"
+msgstr "Maximal tolerierbarer Datenverlust (Recovery Point Objective)"
+
+msgid "MTPD (hours)"
+msgstr "MTPD (Stunden)"
+
+msgid "Maximum tolerable period of disruption"
+msgstr "Maximal tolerierbare Ausfallzeit (MTPD)"
+
+msgid "BIA reference"
+msgstr "BIA-Referenz"
+
+msgid "Reference to the business impact analysis (BCM)"
+msgstr "Verweis auf die Business-Impact-Analyse (BCM)"
+
+msgid "business process"
+msgstr "Geschäftsprozess"
+
+msgid "business processes"
+msgstr "Geschäftsprozesse"
+
+msgid "RTO must not exceed MTPD."
+msgstr "Die RTO darf die MTPD nicht überschreiten."
+
+msgid "vendor"
+msgstr "Hersteller"
+
+msgid "application owner"
+msgstr "Fachverantwortlicher"
+
+msgid "application"
+msgstr "Applikation"
+
+msgid "applications"
+msgstr "Applikationen"
+
+msgid "minimum active"
+msgstr "Mindestens aktiv"
+
+msgid "Fewer available members than this means an outage of the group"
+msgstr "Weniger verfügbare Mitglieder bedeuten einen Ausfall der Gruppe"
+
+msgid "redundancy group"
+msgstr "Redundanzgruppe"
+
+msgid "redundancy groups"
+msgstr "Redundanzgruppen"
+
+msgid "group"
+msgstr "Gruppe"
+
+msgid "redundancy group member"
+msgstr "Redundanzgruppen-Mitglied"
+
+msgid "redundancy group members"
+msgstr "Redundanzgruppen-Mitglieder"
+
+msgid "type"
+msgstr "Typ"
+
+msgid "comment"
+msgstr "Bemerkung"
+
+msgid "dependency"
+msgstr "Abhängigkeit"
+
+msgid "dependencies"
+msgstr "Abhängigkeiten"
+
+msgid "An object cannot depend on itself."
+msgstr "Ein Objekt kann nicht von sich selbst abhängen."
+
+msgid "Add"
+msgstr "Hinzufügen"
+
+msgid "Dependencies"
+msgstr "Abhängigkeiten"
+
+msgid "Model"
+msgstr "Modell"
+
+msgid "Business processes"
+msgstr "Geschäftsprozesse"
+
+msgid "Applications"
+msgstr "Applikationen"
+
+msgid "Redundancy groups"
+msgstr "Redundanzgruppen"
+
+msgid "Analysis"
+msgstr "Auswertung"
+
+msgid "Impact analysis"
+msgstr "Impact-Analyse"
+
+#, python-format
+msgid "%(obj)s is used in %(n)s dependency(ies) and cannot be deleted. Remove the dependencies first."
+msgstr "%(obj)s wird in %(n)s Abhängigkeit(en) verwendet und kann nicht gelöscht werden. Bitte zuerst die Abhängigkeiten entfernen."
+
+msgid "Members"
+msgstr "Mitglieder"
+
+msgid "Source type"
+msgstr "Quelltyp"
+
+msgid "Source"
+msgstr "Quelle"
+
+msgid "Target type"
+msgstr "Zieltyp"
+
+msgid "Target"
+msgstr "Ziel"
+
+msgid "Analyse"
+msgstr "Auswerten"
+
+msgid "Please select at least one starting object."
+msgstr "Bitte mindestens ein Ausgangsobjekt wählen."
+
+msgid "No business process affected."
+msgstr "Kein Geschäftsprozess betroffen."
+
+msgid "None affected."
+msgstr "Keine betroffen."
+
+msgid "Notes"
+msgstr "Hinweise"
+
+msgid "Other affected objects"
+msgstr "Weitere betroffene Objekte"
+
+#, python-format
+msgid "%(n)s further affected object is not shown (no permission to view it)."
+msgid_plural "%(n)s further affected objects are not shown (no permission to view them)."
+msgstr[0] "%(n)s weiteres betroffenes Objekt wird nicht angezeigt (keine Berechtigung)."
+msgstr[1] "%(n)s weitere betroffene Objekte werden nicht angezeigt (keine Berechtigung)."
+
+msgid "Data quality"
+msgstr "Datenqualität"
+
+msgid "Level"
+msgstr "Stufe"
+
+msgid "Object"
+msgstr "Objekt"
+
+msgid "Reason"
+msgstr "Grund"
+
+msgid "Required by"
+msgstr "Wird benötigt von"
+
+#, python-format
+msgid "%(n)s further dependency is not shown (no permission to view the object)."
+msgid_plural "%(n)s further dependencies are not shown (no permission to view the objects)."
+msgstr[0] "%(n)s weitere Abhängigkeit wird nicht angezeigt (keine Berechtigung für das Objekt)."
+msgstr[1] "%(n)s weitere Abhängigkeiten werden nicht angezeigt (keine Berechtigung für die Objekte)."
+
+msgid "Dependency tree"
+msgstr "Abhängigkeitsbaum"
+
+msgid "Add dependency"
+msgstr "Abhängigkeit hinzufügen"
+
+#, python-format
+msgid "%(n)s object without further dependencies"
+msgid_plural "%(n)s objects without further dependencies"
+msgstr[0] "%(n)s Objekt ohne weitere Abhängigkeiten"
+msgstr[1] "%(n)s Objekte ohne weitere Abhängigkeiten"
+
+msgid "(object not visible)"
+msgstr "(Objekt nicht sichtbar)"
+
+msgid "cycle"
+msgstr "Zyklus"
+
+msgid "see above"
+msgstr "siehe oben"
+
+msgid "Add member"
+msgstr "Mitglied hinzufügen"
+
+msgid "Show"
+msgstr "Anzeigen"
+
+msgid "(what does the object depend on?)"
+msgstr "(wovon hängt das Objekt ab?)"
+
+msgid "(what depends on the object?)"
+msgstr "(wer hängt vom Objekt ab?)"
+
+msgid "Directly cabled to"
+msgstr "Direkt verkabelt mit"
+
+#, python-format
+msgid "%(n)s dependency(ies) without source/target."
+msgstr "%(n)s Abhängigkeit(en) ohne Quelle/Ziel."
+
+#, python-format
+msgid "Cycle in dependencies: %(path)s"
+msgstr "Zyklus in Abhängigkeiten: %(path)s"
+
+#, python-format
+msgid "Cluster %(cl)s has only %(n)s host(s) in NetBox and no QDevice – a host outage means quorum loss. Are hosts missing in NetBox?"
+msgstr "Cluster %(cl)s hat nur %(n)s Host(s) in NetBox und kein QDevice – ein Hostausfall bedeutet Quorumverlust. Fehlen Hosts in NetBox?"
+
+#, python-format
+msgid "VM %(vm)s has neither cluster nor host."
+msgstr "VM %(vm)s ohne Cluster und Host."

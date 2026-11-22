@@ -1,0 +1,8 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load i18n %}
+{% block extra_controls %}
+  <a href="{% url 'plugins:netbox_dependencies:tree' app_label=object|meta:'app_label' model=object|meta:'model_name' pk=object.pk %}" class="btn btn-outline-primary">
+    <i class="mdi mdi-file-tree"></i> {% trans "Dependency tree" %}
+  </a>
+{% endblock %}

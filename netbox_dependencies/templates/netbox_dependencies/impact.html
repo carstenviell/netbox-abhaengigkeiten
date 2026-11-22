@@ -1,0 +1,71 @@
+{% extends 'generic/_base.html' %}
+{% load i18n form_helpers helpers %}
+
+{% block title %}{% trans "Impact analysis" %}{% endblock %}
+
+{% block content %}
+  <form method="get" class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">{% render_field form.scenario %}</div>
+        <div class="col-md-4">{% render_field form.qdevice_votes %}</div>
+        <div class="col-md-4">{% render_field form.no_ha_tag %}</div>
+        <div class="col-md-4">{% render_field form.device %}</div>
+        <div class="col-md-4">{% render_field form.virtualmachine %}</div>
+        <div class="col-md-4">{% render_field form.cluster %}</div>
+        <div class="col-md-4">{% render_field form.powerpanel %}</div>
+        <div class="col-md-4">{% render_field form.powerfeed %}</div>
+        <div class="col-md-4">{% render_field form.circuit %}</div>
+      </div>
+    </div>
+    <div class="card-footer text-end">
+      <button type="submit" class="btn btn-primary"><i class="mdi mdi-flash-alert"></i> {% trans "Analyse" %}</button>
+    </div>
+  </form>
+
+  {% if no_seeds %}<div class="alert alert-warning">{% trans "Please select at least one starting object." %}</div>{% endif %}
+
+  {% if analysed %}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <strong>{{ scenario_label }}</strong> –
+        {% for o in seed_objs %}{{ o|linkify }}{% if not forloop.last %}, {% endif %}{% endfor %}
+      </div>
+      <a href="?{{ request.GET.urlencode }}&export=csv" class="btn btn-sm btn-outline-secondary"><i class="mdi mdi-download"></i> CSV</a>
+    </div>
+
+    <div class="card mb-3">
+      <h2 class="card-header">{% trans "Business processes" %}</h2>
+      {% if processes %}
+        {% include 'netbox_dependencies/inc/impact_rows.html' with rows=processes show_bcm=True %}
+      {% else %}
+        <div class="card-body text-success"><i class="mdi mdi-check-circle"></i> {% trans "No business process affected." %}</div>
+      {% endif %}
+    </div>
+    <div class="card mb-3">
+      <h2 class="card-header">{% trans "Applications" %}</h2>
+      {% if applications %}{% include 'netbox_dependencies/inc/impact_rows.html' with rows=applications %}
+      {% else %}<div class="card-body text-muted">{% trans "None affected." %}</div>{% endif %}
+    </div>
+    {% if hints %}
+      <div class="card mb-3">
+        <h2 class="card-header">{% trans "Notes" %}</h2>
+        <ul class="list-group list-group-flush">{% for h in hints %}<li class="list-group-item"><i class="mdi mdi-information-outline text-warning"></i> {{ h }}</li>{% endfor %}</ul>
+      </div>
+    {% endif %}
+    <div class="card mb-3">
+      <h2 class="card-header">{% trans "Other affected objects" %}</h2>
+      {% if others %}{% include 'netbox_dependencies/inc/impact_rows.html' with rows=others %}
+      {% else %}<div class="card-body text-muted">{% trans "None affected." %}</div>{% endif %}
+    </div>
+    {% if hidden %}
+      <div class="alert alert-secondary">{% blocktrans count n=hidden %}{{ n }} further affected object is not shown (no permission to view it).{% plural %}{{ n }} further affected objects are not shown (no permission to view them).{% endblocktrans %}</div>
+    {% endif %}
+    {% if quality %}
+      <div class="card mb-3">
+        <h2 class="card-header">{% trans "Data quality" %}</h2>
+        <ul class="list-group list-group-flush">{% for text, obj in quality %}<li class="list-group-item">{% if obj %}{{ obj|linkify }}: {% endif %}{{ text }}</li>{% endfor %}</ul>
+      </div>
+    {% endif %}
+  {% endif %}
+{% endblock %}

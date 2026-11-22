@@ -1,0 +1,9 @@
+{% load i18n helpers %}
+{% for d in deps %}
+  <tr>
+    <td>{% if side == 'target' %}{{ d.target|linkify }}{% else %}{{ d.source|linkify }}{% endif %}</td>
+    <td>{{ d.get_type_display }}</td>
+    <td><span class="badge text-bg-{{ d.get_criticality_color }}">{{ d.get_criticality_display }}</span></td>
+    <td class="text-end"><a href="{{ d.get_absolute_url }}" class="text-muted" title="{% trans 'Dependency' %}"><i class="mdi mdi-open-in-new"></i></a></td>
+  </tr>
+{% endfor %}

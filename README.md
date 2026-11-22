@@ -1,162 +1,183 @@
-# NetBox Abhängigkeitsmodell
+**English** | [Deutsch](README.de.md)
 
-Mit diesem Projekt dokumentierst du in [NetBox](https://github.com/netbox-community/netbox) die Abhängigkeiten zwischen **Geschäftsprozessen, Applikationen, VMs, Clustern, Netzwerk und Stromversorgung**. Zwei Auswertungen bauen darauf auf: Welche Folgen hat ein Ausfall oder eine Wartung, und wovon hängt ein bestimmtes Objekt ab?
+# NetBox Dependencies
 
-Gedacht ist es für den Betrieb, in dem diese Fragen regelmäßig auftauchen:
+[NetBox](https://github.com/netbox-community/netbox) plugin to document the dependencies between **business processes,
+applications, VMs, clusters, network and power** – and to answer two questions from them: *what is affected when these
+objects fail or are maintained?* and *what does this object depend on?*
 
-- **Updateplanung:** Was ist betroffen, wenn dieser Switch oder Host gewartet wird?
-- **Notfallplanung (BCM):** Welche Prozesse fallen aus, und in welcher Reihenfolge erfolgt der Wiederanlauf?
-- **NIS2 / ISMS:** Wie wirken sich Infrastrukturausfälle auf kritische Prozesse aus? Das Ergebnis ist nachvollziehbar und versioniert.
-- **Backup-Planung:** Welche Systeme stehen hinter Prozessen mit RPO-Anforderungen?
+Made for operations where these questions come up regularly:
 
-Das Projekt kommt **ohne eigenes Plugin** aus. Es nutzt das offizielle Plugin [NetBox Custom Objects](https://github.com/netboxlabs/netbox-custom-objects) und NetBox Custom Scripts.
+- **Patch and update planning:** what is affected when this switch or host is maintained?
+- **Business continuity (BCM):** which processes fail, in which order are they restored?
+- **NIS2 / ISMS:** how do infrastructure outages affect critical processes – traceable and versioned.
+- **Backup planning:** which systems are behind processes with RPO requirements?
 
----
+## Features
 
-## Funktionsumfang
+**Data model**
 
-**Datenmodell** (Custom Object Types, versioniert als Portable Schema):
-
-| Typ | Zweck |
+| Object | Purpose |
 |---|---|
-| Geschäftsprozess | Prozess mit BIA-Kennzahlen (RTO, RPO, MTPD), Verantwortlichem und NIS2-Relevanz |
-| Applikation | Fachanwendung oder IT-Dienst |
-| Redundanzgruppe | „Mindestens N von M Mitgliedern müssen verfügbar sein“, z. B. ein Switch-Paar |
-| Abhängigkeit | Gerichtete Kante „Quelle benötigt Ziel“ mit Typ und Kritikalität (hart / degradiert / keine) |
+| Business process | Process with BIA figures (RTO, RPO, MTPD), owner and NIS2 relevance. RTO must not exceed MTPD. |
+| Application | Business application or IT service |
+| Redundancy group | "At least N of M members must be available", e.g. a switch pair (members: devices, VMs, clusters, circuits) |
+| Dependency | Directed edge "source requires target" with type (runs on, requires, authenticates via, data from, power/cooling) and criticality (hard / degraded / none) |
 
-Die Datenbank erzwingt dabei zwei Regeln:
-- Jede Abhängigkeit existiert nur einmal, eindeutig über Quelle, Ziel und Typ.
-- Objekte, die in einer Abhängigkeit verwendet werden, lassen sich nicht löschen.
+- A dependency exists only once per source, target and type.
+- Objects used in a dependency cannot be deleted (remove the dependency first).
+- Sources and targets: devices, VMs, clusters, circuits, power panels, power feeds, application services, business
+  processes, applications and redundancy groups.
 
-**Impact-Analyse** (Custom Script): Du wählst Objekte und ein Szenario (Ausfall oder Wartung). Das Script zeigt betroffene Prozesse, Applikationen und Systeme mit der Stufe AUSFALL oder DEGRADIERT und gibt das Ergebnis zusätzlich als CSV aus. Die Ausbreitung berücksichtigt:
+**Impact analysis** (*Dependencies → Impact analysis*, or the button on a device/VM/cluster/... page): choose objects
+and a scenario (outage or maintenance). The result lists the affected business processes, applications and other
+objects with the level *outage* or *degraded* and the reason, notes on HA VMs (restart / live migration) and data
+quality findings; CSV export included. Propagation covers:
 
-- **Strom:** Unterverteilung → Stromkreis → Netzteil. Eine PDU zählt als Quelle.
-- **Verkabelung:** Ein Gerät gilt als isoliert, wenn alle seine Gegenstellen ausgefallen sind.
-- **Cluster-Quorum:** Mehrheit der Hosts, optional mit QDevice.
-- **VMs:** Unterschieden wird zwischen HA-VMs und an einen Host gebundenen VMs.
-- **Redundanzgruppen:** Die Stufe hängt von der geforderten Mindestanzahl aktiver Mitglieder ab.
-- **Abhängigkeitskanten:** Die Kritikalität der Kante bestimmt, was weitergegeben wird.
+- **Power:** power panel → power feed → power port; a PDU counts as a source.
+- **Cabling:** a device is isolated when all cabled peers have failed (also via one-sided circuits).
+- **Cluster quorum:** majority of hosts, optionally with QDevice votes.
+- **VMs:** a VM with a host set is bound to it; a VM with only a cluster set is an HA VM.
+- **Redundancy groups:** level depends on the required minimum of active members.
+- **Dependency edges:** the criticality decides what is passed on.
 
-Dazu kommen Prüfungen der Datenqualität: Zyklen, RTO > MTPD, unvollständige Kanten und zu kleine Cluster.
+**Dependency tree** (button on every supported object): what the object *requires* and what it is *required by*, over
+several levels, optionally with the direct cable connections.
 
-**Abhängigkeitsbaum** (Custom Script): Für ein beliebiges Objekt zeigt das Script mehrstufig, was es **benötigt** und wovon es **benötigt wird**. Optional kommen die direkten Kabelverbindungen hinzu.
+**Detail pages** of devices, VMs, clusters, circuits, power panels/feeds and services show a *Dependencies* panel
+with the direct dependencies and buttons for tree, impact analysis and "add dependency".
 
----
+**Permissions are respected:** the analysis always runs on the complete infrastructure, but objects the user may not
+view are never shown – only their number.
 
-## Voraussetzungen
+## Requirements
 
-- NetBox **≥ 4.7**
-- `netboxlabs-netbox-custom-objects` **≥ 1.0.0**
-- PostgreSQL, Redis und ein laufender RQ-Worker. Custom Scripts laufen über den Worker.
-- Für das Setup: Python ≥ 3.10 mit `requests` und `pyyaml`
-
-> **Hinweis zu NetBox 4.5.x:** Plugin 1.0.0 startet zwar unter NetBox 4.5.4, die Listenansichten brechen aber mit
-> `BaseTable._apply_prefetching() takes 1 positional argument but 2 were given` ab. Unter 4.7 tritt der Fehler nicht auf.
-
----
+- NetBox **4.7** or later
 
 ## Installation
 
-### 1. Plugin installieren
+The plugin is not published on PyPI. Install it from the GitHub release archive – this works without `git`, also in the
+netbox-docker image. Replace `v2.0.0` with the [release](https://github.com/carstenviell/netbox-dependencies/releases)
+you want.
 
-Siehe die [Installationsanleitung des Plugins](https://netboxlabs.com/docs/custom-objects/installation/).
-
-### 2. Schema einspielen
-
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install requests pyyaml
-
-export NETBOX_URL="https://netbox.example.org"
-export NETBOX_AUTH="Token <api-token>"        # v2-Token: "Bearer nbt_<key>.<token>"
-# export NETBOX_CA_BUNDLE=./ca.pem            # nur bei eigener oder selbstsignierter CA
-
-python setup_abhaengigkeiten.py abhaengigkeiten_schema.yaml --preview-only   # Vorschau, ändert nichts
-python setup_abhaengigkeiten.py abhaengigkeiten_schema.yaml                  # anwenden, nach Bestätigung
-```
-
-Das Script legt die benötigten Choice Sets an oder prüft sie, zeigt die Änderungen als Vorschau und wendet sie erst nach Bestätigung mit `ja` an. Destruktive Änderungen lehnt es grundsätzlich ab.
-
-Der API-Token braucht dafür Schreibrechte auf Choice Sets und Custom Object Types. Nach dem Einspielen solltest du ihn widerrufen oder auf Leserechte beschränken.
-
-### 3. Scripts installieren
-
-`impact_analyse.py` lädst du unter *Customization → Scripts* hoch. Die Datei enthält beide Scripts.
-
-### 4. Optional: Anzeige und Direktlinks
-
-- **Anzeigeausdruck für Abhängigkeiten.** Unter *Custom Object Type „Abhängigkeit“ → Display expression* trägst du ein:
-  ```
-  {{ quelle }} → {{ ziel }}
-  ```
-  Diese Einstellung gehört nicht zum Portable-Schema-Format und muss deshalb von Hand gesetzt werden.
-- **Custom Links „Abhängigkeiten“** je Objekttyp:
-  ```
-  /extras/scripts/<SCRIPT-ID>/?objekt=dcim/device:{{ object.pk }}
-  /extras/scripts/<SCRIPT-ID>/?objekt=custom-objects/applikation:{{ object.pk }}
-  ```
-- **Custom Links „Impact-Analyse“** je Objekttyp. Der Parameter ist der Feldname im Script (nicht `objekt=`), das Objekt ist danach im Formular vorausgewählt:
-  ```
-  /extras/scripts/<SCRIPT-ID>/?devices={{ object.pk }}       # Gerät
-  /extras/scripts/<SCRIPT-ID>/?vms={{ object.pk }}           # VM
-  /extras/scripts/<SCRIPT-ID>/?clusters={{ object.pk }}      # Cluster
-  /extras/scripts/<SCRIPT-ID>/?powerpanels={{ object.pk }}   # Unterverteilung
-  /extras/scripts/<SCRIPT-ID>/?powerfeeds={{ object.pk }}    # Stromkreis
-  /extras/scripts/<SCRIPT-ID>/?circuits={{ object.pk }}      # Leitung
-  ```
-
-### 5. Optional: Patch-Planung
-
-Das Plugin [netbox-patch-management](https://github.com/carstenviell/netbox-patch-management) verlinkt aus der Patch-Planung auf die Impact-Analyse (Szenario Wartung, ausgewählte Systeme vorbefüllt). Es nutzt dafür den Script-Namen `ImpactAnalyse` und die Felder `szenario`, `devices` und `vms`. Diese Namen gelten deshalb als Schnittstelle und werden nicht umbenannt.
-
----
-
-## Konventionen
-
-1. **Bindung von VMs:** Ist bei einer VM ein Host eingetragen, ist sie an diesen gebunden (kein HA oder Hostfixierung). Ist nur der Cluster eingetragen, ist sie eine HA-VM. Davon hängt die Impact-Analyse ab.
-2. **Redundanz** modellierst du ausschließlich über Redundanzgruppen. Die Scripts leiten sie nie aus der Verkabelung ab.
-3. **Keine doppelten Kanten:** VM → Cluster, Host → Cluster, Kabel und Strom liest das Script aus den NetBox-Kernobjekten. Dafür legst du keine Abhängigkeiten an.
-4. **Schemaänderungen** laufen nur über `abhaengigkeiten_schema.yaml`:
-   - Feld-IDs bleiben dauerhaft gleich.
-   - Entfernte Felder kommen nach `removed_fields`.
-   - Die Version zählst du nach PEP 440 hoch.
-
-### Beispiel
-
-```
-Geschäftsprozess "Abrechnung"
-  └─ benötigt [hart] → Applikation "ERP"
-        ├─ läuft auf [hart] → VM "erp01" ─→ Cluster ─→ Hosts ─→ Strom
-        ├─ authentifiziert über [hart] → Applikation "Active Directory"
-        │     └─ läuft auf [hart] → Redundanzgruppe "DCs" (min. 1 von 2)
-        └─ benötigt [hart] → Redundanzgruppe "Access-Switche" (min. 1 von 2)
-              └─ benötigt [hart] → Redundanzgruppe "Core-Switche" (min. 1 von 2)
-```
-
----
-
-## Grenzen
-
-- **Konservativ:** Verliert ein Cluster das Quorum, gelten alle seine VMs als ausgefallen.
-- **Keine Kapazitätsprüfung:** Ob die verbleibenden Hosts genug Ressourcen haben, prüfen die Scripts nicht.
-- **Ceph** wird nicht eigens modelliert. Ein Storage-Netz bildest du über Redundanzgruppen und Abhängigkeiten ab.
-- **Bei HA-VMs ist der aktuelle Host bewusst nicht dokumentiert.** Bei einem Hostausfall gibt die Analyse deshalb nur einen Sammelhinweis pro Cluster aus.
-- **Die Ergebnisse sind nur so gut wie die Daten:** Fehlende Verkabelung, Netzteile oder Abhängigkeiten führen dazu, dass Auswirkungen nicht gemeldet werden.
-
----
-
-## Entwicklung
-
-Die Rechenkerne (`berechne_impact`, `baue_baum`) sind reine Funktionen und lassen sich ohne NetBox testen:
+**NetBox installed from source (systemd):**
 
 ```bash
-python3 -I tests/test_engine.py
+sudo /opt/netbox/venv/bin/pip install https://github.com/carstenviell/netbox-dependencies/archive/refs/tags/v2.0.0.tar.gz
+
+# keep the plugin when NetBox is upgraded (upgrade.sh reinstalls local_requirements.txt)
+echo "https://github.com/carstenviell/netbox-dependencies/archive/refs/tags/v2.0.0.tar.gz" | \
+  sudo tee -a /opt/netbox/local_requirements.txt
 ```
 
-Änderungen dokumentierst du in [`CHANGELOG.md`](CHANGELOG.md).
+**netbox-docker:** add to `plugin_requirements.txt`
 
-## Lizenz
+```text
+https://github.com/carstenviell/netbox-dependencies/archive/refs/tags/v2.0.0.tar.gz
+```
 
-[Apache License 2.0](LICENSE), dieselbe Lizenz wie NetBox selbst.
+and to `Dockerfile-Plugins` (build `netbox`, `netbox-worker` and `netbox-housekeeping` from it via `docker-compose.override.yml`):
 
-Das Plugin *NetBox Custom Objects* steht unter einer eigenen Lizenz (NetBox Limited Use License 1.0) und ist **nicht** Teil dieses Repositorys.
+```dockerfile
+FROM netboxcommunity/netbox:v4.7
+COPY ./plugin_requirements.txt /opt/netbox/
+RUN /usr/local/bin/uv pip install -r /opt/netbox/plugin_requirements.txt
+```
+
+Enable the plugin in `configuration.py` (Docker: `configuration/plugins.py`):
+
+```python
+PLUGINS = [
+    # ...
+    'netbox_dependencies',
+]
+```
+
+Apply the migrations and restart:
+
+```bash
+cd /opt/netbox/netbox
+sudo /opt/netbox/venv/bin/python manage.py migrate
+sudo systemctl restart netbox netbox-rq
+```
+
+Docker: `docker compose build --no-cache && docker compose up -d` – migrations run automatically at start.
+
+### Permissions
+
+| Task | Permission |
+|---|---|
+| Impact analysis, dependency tree, panel | `netbox_dependencies.view_dependency` |
+| View / maintain the model | `view` / `add` / `change` / `delete` on business process, application, redundancy group (member), dependency |
+
+Results only contain objects the user may view (object permissions apply).
+
+### Upgrade
+
+Install the new release archive (also update `local_requirements.txt` / `plugin_requirements.txt`), then `migrate`
+and restart (Docker: rebuild).
+
+### Migration from 1.x (custom objects + custom scripts)
+
+Version 1.x was not a plugin: it used [NetBox Custom Objects](https://github.com/netboxlabs/netbox-custom-objects)
+and two custom scripts. 2.0 brings its own models; the data is taken over with a management command (dry run unless
+`--commit`, idempotent, the custom objects are not changed):
+
+```bash
+sudo /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py import_custom_objects            # dry run
+sudo /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py import_custom_objects --commit   # import
+```
+
+Afterwards remove the old custom scripts and custom links; delete the custom object types once you have checked the
+import. Other plugins linking the old script must use the new URL (see below).
+
+### Interface for other plugins
+
+The impact analysis can be opened preselected:
+`/plugins/dependencies/impact/?scenario=outage|maintenance&device=<id>&virtualmachine=<id>&cluster=<id>&powerpanel=<id>&powerfeed=<id>&circuit=<id>`
+(parameters may repeat). [netbox-patch-management](https://github.com/carstenviell/netbox-patch-management) uses it.
+
+## Language
+
+The user interface is English and ships with a German translation. It follows the language the user selected in
+NetBox (*Profile → Preferences → Language*); languages without a translation fall back to English.
+
+## Conventions
+
+1. **VM binding:** a VM with a host set is bound to that host (no HA or pinned). A VM with only a cluster set is an
+   HA VM. The impact analysis relies on this.
+2. **Redundancy** is modelled with redundancy groups only – never guessed from the cabling.
+3. **No duplicate edges:** VM → cluster, host → cluster, cabling and power are read from the NetBox core objects; do not
+   add dependencies for them.
+
+```
+Business process "Billing"
+  └─ requires [hard] → Application "ERP"
+        ├─ runs on [hard] → VM "erp01" ─→ cluster ─→ hosts ─→ power
+        ├─ authenticates via [hard] → Application "Active Directory"
+        │     └─ runs on [hard] → Redundancy group "DCs" (min. 1 of 2)
+        └─ requires [hard] → Redundancy group "Access switches" (min. 1 of 2)
+              └─ requires [hard] → Redundancy group "Core switches" (min. 1 of 2)
+```
+
+## Limits
+
+- **Conservative:** if a cluster loses quorum, all its VMs count as failed.
+- **No capacity check:** whether the remaining hosts have enough resources is not checked.
+- **Ceph** is not modelled separately; model a storage network with redundancy groups and dependencies.
+- **The current host of HA VMs is deliberately not documented** – for a host outage the analysis gives one note per
+  cluster.
+- **Results are only as good as the data:** missing cabling, power ports or dependencies mean effects are not reported.
+
+## Development
+
+```bash
+cd ~/dev/netbox/netbox-docker   # or your NetBox
+python manage.py test netbox_dependencies --keepdb
+```
+
+The impact and tree engines (`engine.py`) are pure functions; their scenario tests need no database.
+
+## License
+
+[Apache License 2.0](LICENSE), the same license as NetBox.

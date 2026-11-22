@@ -1,0 +1,10 @@
+{% extends 'netbox_dependencies/object_with_analysis.html' %}
+{% load i18n %}
+{% block extra_controls %}
+  {{ block.super }}
+  {% if perms.netbox_dependencies.add_redundancygroupmember %}
+    <a href="{% url 'plugins:netbox_dependencies:redundancygroupmember_add' %}?group={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
+      <i class="mdi mdi-plus-thick"></i> {% trans "Add member" %}
+    </a>
+  {% endif %}
+{% endblock %}

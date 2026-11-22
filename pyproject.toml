@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "netbox-dependencies"
+version = "2.0.0"
+description = "NetBox plugin to document dependencies (business process -> application -> VM -> cluster/host -> network -> power) and analyse the impact of outages and maintenance."
+authors = [{ name = "Carsten Viell" }]
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/carstenviell/netbox-dependencies"
+Repository = "https://github.com/carstenviell/netbox-dependencies"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["netbox_dependencies*"]
+
+[tool.setuptools.package-data]
+"netbox_dependencies" = ["templates/**/*", "locale/**/*"]
+
+[tool.setuptools]
+include-package-data = true

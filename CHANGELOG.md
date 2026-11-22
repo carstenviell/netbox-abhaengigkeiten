@@ -1,89 +1,101 @@
+**English** | [Deutsch](CHANGELOG.de.md)
+
 # Changelog
 
-Format angelehnt an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
-Schema-Versionen je Custom Object Type nach PEP 440, Git-Tag `schema-<version>`.
+Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow [SemVer](https://semver.org/).
+Up to 1.x: schema versions per custom object type according to PEP 440, Git tag `schema-<version>`.
 
-## Offen
-
-### In Arbeit
-- [ ] Anzeigeausdruck für `abhaengigkeit` in der Oberfläche setzen und prüfen: `{{ quelle }} → {{ ziel }}`. Ungetestet, ob das Plugin die verknüpften Objekte so auflöst. Der Ausdruck ist nicht Teil des Schemaformats und wird deshalb hier dokumentiert.
-
-### Datenbefunde
-Werden **nicht** im Repository geführt (sicherheitsrelevant), sondern lokal in `INTERN.md` (per `.gitignore` ausgeschlossen).
+## Open
 
 ### Roadmap
-1. Produktiv-NetBox auf 4.7 heben, als eigener Change mit Backup und Rückfallplan.
-2. Plugin 1.0.0 und Schema in die Produktion bringen. YAML und Scripts vorher ins Git.
-3. Daten vervollständigen: Hosts mit Cluster-Zuordnung, Verkabelung, Strom (Unterverteilung → Stromkreis → Netzteil).
-4. Pilotprozess vollständig modellieren.
-5. **Proxmox-Sync** als Custom Script mit Zeitplan:
-   - nie destruktiv, Abweichungen nur melden oder markieren
-   - HA-Status aus Proxmox lesen (`/cluster/ha/resources`, für die eingesetzte Version zu verifizieren)
-   - `device` nur bei VMs ohne HA setzen, damit die VM-Konvention gewahrt bleibt
-6. **Backup-Abgleich:** Applikation mit RPO → VMs → PBS-Jobs. Fehlende oder zu seltene Sicherungen werden als Befund gemeldet.
-7. Weitere Quelltypen prüfen: `virtualization/cluster` (für „Cluster benötigt Storage-Switches“, Ceph), `dcim/powerpanel` (für „Unterverteilung benötigt USV“).
-8. Optional: ein eigenes Plugin mit einem Bereich „Abhängigkeiten“ auf den Detailseiten, nur bei täglichem Bedarf. Es bedeutet zusätzlichen Pflegeaufwand bei jedem NetBox-Upgrade.
+1. Upgrade the production NetBox to 4.7 as a separate change with backup and fallback plan; then roll out plugin 2.0.
+2. Complete the data: hosts with cluster assignment, cabling, power (power panel → power feed → power port).
+3. Model a pilot process completely.
+4. **Hypervisor sync** (e.g. Proxmox) on a schedule: never destructive, only report deviations; take over the HA state, set `device` only for VMs without HA.
+5. **Backup check:** application with RPO → VMs → backup jobs; missing or too infrequent backups as findings.
+
+Data findings are **not** kept in the repository (security relevant).
 
 ---
 
+## [2.0.0] – 2026-11-22
+The dependency model becomes the **NetBox plugin netbox-dependencies** (repository renamed from netbox-abhaengigkeiten; old links redirect).
+
+### Added
+- Own models business process, application, redundancy group (with members), dependency – with list, detail, edit, bulk import/delete, REST API and search. RTO ≤ MTPD is now validated when saving.
+- Impact analysis and dependency tree as plugin pages instead of custom scripts, with CSV export; *Dependencies* panel on the detail pages of devices, VMs, clusters, circuits, power panels, power feeds and services.
+- Permissions: the analysis runs on the complete infrastructure but only shows objects the user may view (only their number otherwise).
+- Multilingual: English user interface with a shipped German translation, language per user, otherwise English.
+- Management command `import_custom_objects` takes over the data of 1.x (dry run without `--commit`, idempotent). Verified on the test instance: all 23 objects imported; the impact analysis returns exactly the same 65 results as the former script in 7 comparison scenarios.
+
+### Changed
+- **Breaking:** no dependency on the NetBox Custom Objects plugin anymore; choice values are English (`runs_on`, `requires`, `authenticates_via`, `data_from`, `power_cooling`; `hard`, `degraded`, `none`).
+- **Breaking:** interface for other plugins: `/plugins/dependencies/impact/?scenario=outage|maintenance&device=…&virtualmachine=…` instead of the script `ImpactAnalyse` with `szenario`/`devices`/`vms`.
+- Engine taken over unchanged (all 15 scenario tests), only identifiers and texts are English and translatable.
+
+### Removed
+- `impact_analyse.py` (custom scripts), `setup_abhaengigkeiten.py`, `abhaengigkeiten_schema.yaml`, `tests/test_engine.py` (tests now run in the plugin).
+
+### Security
+- Security audit before the release (report kept locally): the detail-page panel does not show peers the user may not view; the API does not reveal whether IDs of invisible objects exist; CSV export protected against formula injection.
+
 ## [1.0.6] – 2026-11-22
-### Dokumentation
-- **README:** Anbindung an das Plugin `netbox-patch-management`. Der Script-Name `ImpactAnalyse` und die Felder `szenario`, `devices`, `vms` sind jetzt eine Schnittstelle und dürfen nicht umbenannt werden.
+### Documentation
+- **README:** connection to the plugin `netbox-patch-management`. The script name `ImpactAnalyse` and the fields `szenario`, `devices`, `vms` are now an interface and must not be renamed.
 
 ## [1.0.5] – 2026-11-21
-### Neu
-- **README:** Custom Links „Impact-Analyse“ für Gerät, VM, Cluster, Unterverteilung, Stromkreis und Leitung (`?devices=`, `?vms=`, `?clusters=`, `?powerpanels=`, `?powerfeeds=`, `?circuits=` mit `{{ object.pk }}`). Das Objekt ist im Formular vorausgewählt.
-### Geändert
-- Vorbefüllung des Script-Formulars aus GET-Parametern in NetBox 4.7 verifiziert. Damit ist auch der offene Punkt zu den Custom Links „Abhängigkeiten“ erledigt.
+### Added
+- **README:** custom links "Impact-Analyse" for device, VM, cluster, power panel, power feed and circuit (`?devices=`, `?vms=`, `?clusters=`, `?powerpanels=`, `?powerfeeds=`, `?circuits=` with `{{ object.pk }}`). The object is preselected in the form.
+### Changed
+- Prefilling the script form from GET parameters verified on NetBox 4.7. This also closes the open item on the custom links "Abhängigkeiten".
 
 ## [1.0.4] – 2026-11-16
-### Behoben
-- **Impact-Analyse / Abhängigkeitsbaum:** Einseitig terminierte Leitungen (z. B. Internetanschluss ohne dokumentierte Provider-Seite) werden als Gegenstelle erkannt. NetBox liefert bei solchen unvollständigen Kabelpfaden keine `connected_endpoints`. Bisher galt eine Firewall deshalb schon beim Ausfall ihres einzigen LAN-Switches als isoliert, und eine ausgefallene Leitung wirkte sich nicht auf das angeschlossene Gerät aus. Jetzt zählt die Leitungs-Terminierung am Pfadende (`CablePath.path_objects`, auch über Patchpanels hinweg).
-- Tests: Szenario 15 (Gegenstellen).
+### Fixed
+- **Impact analysis / dependency tree:** circuits terminated on one side only (e.g. internet uplink without documented provider side) are recognised as peers. NetBox returns no `connected_endpoints` for such incomplete cable paths. So far a firewall therefore counted as isolated as soon as its only LAN switch failed, and a failed circuit had no effect on the connected device. Now the circuit termination at the end of the path counts (`CablePath.path_objects`, also across patch panels).
+- Tests: scenario 15 (peers).
 
 ## [1.0.3] – 2026-11-16
-### Behoben
-- **Impact-Analyse:** Betroffene Prozesse und Applikationen mit Stufe AUSFALL werden als Warnung statt als Fehler protokolliert. Bisher setzte NetBox den Job-Status dadurch auf „failed“, obwohl die Analyse korrekt durchlief. `log_failure` bleibt echten Fehlern vorbehalten (kein Ausgangsobjekt, Custom Object Types nicht ladbar, Objekt nicht gefunden). Die Stufe steht weiterhin im Text und in der CSV.
+### Fixed
+- **Impact analysis:** affected processes and applications with level OUTAGE are logged as warnings instead of failures. So far NetBox set the job status to "failed" although the analysis ran correctly. `log_failure` is reserved for real errors (no starting object, custom object types not loadable, object not found). The level is still shown in the text and the CSV.
 
 ## [1.0.2] – 2026-11-16
-### Behoben
-- **Abhängigkeitsbaum:** Fehlen das Plugin oder die Custom Object Types `abhaengigkeit`/`redundanzgruppe`, bricht das Script mit einer verständlichen Meldung ab statt mit `KeyError`/`ImportError` (gleiches Verhalten wie die Impact-Analyse).
-- **Tests:** Irreführende Zwischenausgabe „alle 9 Szenarien OK“ heißt jetzt „Szenarien 1–9 OK“.
+### Fixed
+- **Dependency tree:** if the plugin or the custom object types `abhaengigkeit`/`redundanzgruppe` are missing, the script stops with a clear message instead of `KeyError`/`ImportError` (same behaviour as the impact analysis).
+- **Tests:** the misleading intermediate output "alle 9 Szenarien OK" now reads "Szenarien 1–9 OK".
 
 ## [1.0.1] – 2026-11-16
-### Veröffentlichung
-- **Hinzugefügt:** Veröffentlichung als öffentliches GitHub-Repository, Release `v1.0.1`.
-- **Geändert:** `.gitignore` schließt zusätzlich `CLAUDE.md` und `.DS_Store` aus.
-- **Entfernt:** Verweis auf `CLAUDE.md` im `README.md` (Datei ist nicht Teil des Repositorys).
+### Publication
+- **Added:** published as public GitHub repository, release `v1.0.1`.
+- **Changed:** `.gitignore` additionally excludes `CLAUDE.md` and `.DS_Store`.
+- **Removed:** reference to `CLAUDE.md` in `README.md` (the file is not part of the repository).
 
 ## [1.0.0] – 2026-11-08
-### Dokumentation
-- **Hinzugefügt:** Lizenz Apache-2.0 (`LICENSE`, SPDX-Header in den Python-Dateien).
-- **Hinzugefügt:** `README.md` für die Veröffentlichung. Interne Befunde und Umgebungsdetails ausgelagert nach `INTERN.md` (nicht versioniert).
-
+### Documentation
+- **Added:** license Apache-2.0 (`LICENSE`, SPDX headers in the Python files).
+- **Added:** `README.md` for publication. Internal findings and environment details moved to `INTERN.md` (not versioned).
 
 ### Schema 1.1.0 (`abhaengigkeit`)
-- **Hinzugefügt:** `custom-objects/redundanzgruppe` als Quelltyp. Damit sind Gruppe-zu-Gruppe-Abhängigkeiten wie DIST → CORE möglich.
-- Status: in der Testinstanz eingespielt. Damit ist bestätigt, dass das Plugin das Erweitern von `related_object_types` bei einem bestehenden polymorphen Feld zulässt.
+- **Added:** `custom-objects/redundanzgruppe` as source type. This allows group-to-group dependencies such as DIST → CORE.
+- Status: applied on the test instance. This confirms that the plugin allows extending `related_object_types` of an existing polymorphic field.
 
-### Impact-Analyse / Abhängigkeitsbaum (`impact_analyse.py`)
-- **Hinzugefügt:** Script **Abhängigkeitsbaum**. Es zeigt mehrstufig „benötigt“ und „wird benötigt von“, dazu direkte Verkabelung. Wiederholungen werden markiert, Endpunkte ab vier Stück zu einer Sammelzeile zusammengefasst, Objekte mit Unterbaum stehen zuerst.
-- **Geändert:** Die VM-Logik folgt jetzt der Konvention „Host eingetragen = gebunden, nur Cluster = HA“. Der Tag `kein-ha` dient nur noch der Plausibilitätsprüfung. Für HA-VMs gibt es Hinweise pro Cluster (Neustart oder Live-Migration) statt einer Einzelbewertung pro VM.
-- **Hinzugefügt:** Parameter „QDevice-Stimmen je Cluster“. Die erste Logzeile zeigt die Ausgangsobjekte.
-- **Geändert:** Die CSV-Ausgabe nutzt lesbare Typnamen statt interner Modellnamen.
-- **Hinzugefügt:** Impact-Analyse mit Ausbreitung über Strom, Kabel, Cluster-Quorum, VMs, Redundanzgruppen und Abhängigkeitskanten. Dazu Prüfungen der Datenqualität und CSV-Export.
-- Tests: 14 Szenarien in `tests/test_engine.py`.
-- In der Testinstanz verifiziert: Laden der Custom Objects, polymorphe Felder, Select-Werte, Lesen der Gruppenmitglieder, Kritikalität „degradiert“, gebundene VM bei Hostausfall, Isolation über Kabel.
+### Impact analysis / dependency tree (`impact_analyse.py`)
+- **Added:** script **dependency tree**. It shows "requires" and "required by" over several levels, plus direct cabling. Repetitions are marked, end points from four on are collapsed into one row, objects with a subtree come first.
+- **Changed:** the VM logic now follows the convention "host set = bound, only cluster = HA". The tag `kein-ha` is only used for a plausibility check. For HA VMs there are notes per cluster (restart or live migration) instead of a rating per VM.
+- **Added:** parameter "QDevice votes per cluster". The first log line shows the starting objects.
+- **Changed:** the CSV output uses readable type names instead of internal model names.
+- **Added:** impact analysis with propagation via power, cabling, cluster quorum, VMs, redundancy groups and dependency edges. Plus data-quality checks and CSV export.
+- Tests: 14 scenarios in `tests/test_engine.py`.
+- Verified on the test instance: loading the custom objects, polymorphic fields, select values, reading group members, criticality "degraded", bound VM on host outage, isolation via cabling.
 
-### Plattform
-- **Geändert:** Testinstanz von NetBox 4.5.4 auf **4.7** gehoben. Grund: Plugin 1.0.0 bricht unter 4.5.4 in den Listenansichten ab (`_apply_prefetching`).
+### Platform
+- **Changed:** test instance upgraded from NetBox 4.5.4 to **4.7**. Reason: plugin 1.0.0 breaks in list views on 4.5.4 (`_apply_prefetching`).
 
-### Schema 1.0.0 (alle Typen)
-- **Hinzugefügt:** Typen `geschaeftsprozess`, `applikation`, `redundanzgruppe`, `abhaengigkeit`. Choice Sets `abhaengigkeit_typ` und `kritikalitaet`.
-- **Hinzugefügt:** Ziele der Abhängigkeit sind Applikation, Redundanzgruppe, Geschäftsprozess, VM, Cluster, Device, Stromkreis, Unterverteilung, Service und Leitung.
-- **Entfernt** vor dem ersten Anwenden: `error_message` an Unique-Constraints, weil das Plugin es dort nicht zulässt.
-- Getestet: Erneutes Ausführen ändert nichts (`has_changes: false`), die Eindeutigkeit (Quelle, Ziel, Typ) greift, der Löschschutz greift für Quelle und Ziel.
+### Schema 1.0.0 (all types)
+- **Added:** types `geschaeftsprozess`, `applikation`, `redundanzgruppe`, `abhaengigkeit`. Choice sets `abhaengigkeit_typ` and `kritikalitaet`.
+- **Added:** targets of a dependency are application, redundancy group, business process, VM, cluster, device, power feed, power panel, service and circuit.
+- **Removed** before the first apply: `error_message` on unique constraints, because the plugin does not allow it there.
+- Tested: re-running changes nothing (`has_changes: false`), uniqueness (source, target, type) is enforced, deletion protection works for source and target.
 
 ### Setup (`setup_abhaengigkeiten.py`)
-- **Hinzugefügt:** Choice Sets anlegen oder prüfen (nie überschreiben), Vorschau, Anwenden nach Bestätigung mit `ja`, destruktive Änderungen werden abgelehnt.
-- **Korrigiert:** Die Vorschau erwartet das Dokument direkt als Body, das Anwenden erwartet es verpackt in `{"schema": …}`.
+- **Added:** create or check choice sets (never overwrite), preview, apply after confirmation with `ja`, destructive changes are refused.
+- **Fixed:** the preview expects the document directly as body, applying expects it wrapped in `{"schema": …}`.
